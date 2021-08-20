@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 @Table(name = "tb_nova_proposta")
@@ -41,6 +42,9 @@ public class NovaProposta {
     @Column(name = "salario_proposta", nullable = false)
     private BigDecimal salario;
 
+    public NovaProposta() {
+    }
+
     public NovaProposta(String documento, String email, String nome, String endereco, BigDecimal salario) {
         this.documento = documento;
         this.email = email;
@@ -51,5 +55,22 @@ public class NovaProposta {
 
     public Long getId() {
         return id;
+    }
+
+    public String getDocumento() {
+        return documento;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NovaProposta that = (NovaProposta) o;
+        return Objects.equals(id, that.id) && Objects.equals(documento, that.documento) && Objects.equals(email, that.email) && Objects.equals(nome, that.nome) && Objects.equals(endereco, that.endereco) && Objects.equals(salario, that.salario);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, documento, email, nome, endereco, salario);
     }
 }

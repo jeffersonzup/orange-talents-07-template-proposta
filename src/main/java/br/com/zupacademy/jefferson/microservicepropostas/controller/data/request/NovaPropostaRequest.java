@@ -30,7 +30,7 @@ public class NovaPropostaRequest {
     private BigDecimal salario;
 
     public NovaPropostaRequest(String documento, String email, String nome, String endereco, BigDecimal salario) {
-        this.documento = documento;
+        this.documento = documento.replaceAll("\\D", "");
         this.email = email;
         this.nome = nome;
         this.endereco = endereco;

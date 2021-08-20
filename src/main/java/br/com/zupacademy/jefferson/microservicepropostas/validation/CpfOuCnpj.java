@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CpfOuCnpj {
 
-    String message() default "Insira um CPF ou CNPJ válido.";
+    String message() default "insira um CPF ou CNPJ válido.";
     Class<?>[] groups() default { };
     Class<? extends Payload>[] payload() default { };
 }
