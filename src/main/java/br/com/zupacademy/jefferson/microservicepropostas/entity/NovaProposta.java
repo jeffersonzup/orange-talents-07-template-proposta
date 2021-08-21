@@ -1,5 +1,7 @@
 package br.com.zupacademy.jefferson.microservicepropostas.entity;
 
+import br.com.zupacademy.jefferson.microservicepropostas.enums.ResultadoSolicitacao;
+import br.com.zupacademy.jefferson.microservicepropostas.enums.StatusProposta;
 import br.com.zupacademy.jefferson.microservicepropostas.validation.CpfOuCnpj;
 
 import javax.persistence.*;
@@ -8,7 +10,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
-import java.util.Objects;
 
 @Entity
 @Table(name = "tb_nova_proposta")
@@ -42,6 +43,11 @@ public class NovaProposta {
     @Column(name = "salario_proposta", nullable = false)
     private BigDecimal salario;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private StatusProposta statusProposta;
+
+    @Deprecated
     public NovaProposta() {
     }
 
@@ -51,6 +57,11 @@ public class NovaProposta {
         this.nome = nome;
         this.endereco = endereco;
         this.salario = salario;
+        this.statusProposta = StatusProposta.NAO_ELEGIVEL;
+    }
+
+    public void atualizaStatus(ResultadoSolicitacao resultadoSolicitacao){
+        this.statusProposta = resultadoSolicitacao.getStatusResposta();
     }
 
     public Long getId() {
@@ -61,16 +72,23 @@ public class NovaProposta {
         return documento;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        NovaProposta that = (NovaProposta) o;
-        return Objects.equals(id, that.id) && Objects.equals(documento, that.documento) && Objects.equals(email, that.email) && Objects.equals(nome, that.nome) && Objects.equals(endereco, that.endereco) && Objects.equals(salario, that.salario);
+    public String getEmail() {
+        return email;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, documento, email, nome, endereco, salario);
+    public String getNome() {
+        return nome;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public BigDecimal getSalario() {
+        return salario;
+    }
+
+    public StatusProposta getStatusProposta() {
+        return statusProposta;
     }
 }
