@@ -47,6 +47,9 @@ public class NovaProposta {
     @Enumerated(EnumType.STRING)
     private StatusProposta statusProposta;
 
+    @OneToOne(cascade = CascadeType.MERGE)
+    private Cartao cartao;
+
     @Deprecated
     public NovaProposta() {
     }
@@ -90,5 +93,13 @@ public class NovaProposta {
 
     public StatusProposta getStatusProposta() {
         return statusProposta;
+    }
+
+    public Cartao getCartao() {
+        return cartao;
+    }
+
+    public void associateCard(Cartao cartao){
+        this.cartao = cartao;
     }
 }
