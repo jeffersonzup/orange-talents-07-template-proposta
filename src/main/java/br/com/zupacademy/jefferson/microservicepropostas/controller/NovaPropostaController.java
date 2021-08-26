@@ -2,6 +2,7 @@ package br.com.zupacademy.jefferson.microservicepropostas.controller;
 
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.NovaPropostaRequest;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.SolicitacaoAnaliseRequest;
+import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.PropostaResponse;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.ResultadoAnaliseResponse;
 import br.com.zupacademy.jefferson.microservicepropostas.entity.NovaProposta;
 import br.com.zupacademy.jefferson.microservicepropostas.enums.ResultadoSolicitacao;
@@ -23,6 +24,7 @@ public class NovaPropostaController {
     private NovaPropostaRepository novaPropostaRepository;
 
     private SolicitacaoAnaliseClient solicitacaoAnaliseClient;
+
 
     public NovaPropostaController(NovaPropostaRepository novaPropostaRepository, SolicitacaoAnaliseClient solicitacaoAnaliseClient) {
         this.novaPropostaRepository = novaPropostaRepository;
@@ -52,5 +54,12 @@ public class NovaPropostaController {
 
         URI location = uriBuilder.path("nova-proposta/{id}").build(propostaSalva.getId());
         return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping("/{idProposta}")
+    public ResponseEntity<PropostaResponse> encontrarProposta(@PathVariable Long idProposta){
+        return novaPropostaRepository.findById(idProposta)
+                .map(proposta -> ResponseEntity.ok(new PropostaResponse(proposta)))
+                .orElse(ResponseEntity.notFound().build());
     }
 }

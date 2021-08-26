@@ -102,4 +102,18 @@ public class NovaProposta {
     public void associateCard(Cartao cartao){
         this.cartao = cartao;
     }
+
+    @Override
+    public String toString() {
+        return "NovaProposta{" +
+                "id=" + id +
+                ", documento='" + documento + '\'' +
+                ", email='" + email + '\'' +
+                ", nome='" + nome + '\'' +
+                ", endereco='" + endereco + '\'' +
+                ", salario=" + salario +
+                ", statusProposta=" + statusProposta +
+                '}';
+    }
+
 }
