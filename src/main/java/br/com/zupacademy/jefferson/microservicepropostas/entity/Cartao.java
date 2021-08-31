@@ -47,4 +47,8 @@ public class Cartao {
     public StatusCartao getStatusCartao() {
         return statusCartao;
     }
+
+    public Long getId() {
+        return id;
+    }
 }
