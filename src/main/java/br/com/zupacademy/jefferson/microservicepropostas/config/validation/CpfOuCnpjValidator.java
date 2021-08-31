@@ -1,4 +1,4 @@
-package br.com.zupacademy.jefferson.microservicepropostas.validation;
+package br.com.zupacademy.jefferson.microservicepropostas.config.validation;
 
 import org.hibernate.validator.internal.constraintvalidators.hv.br.CNPJValidator;
 import org.hibernate.validator.internal.constraintvalidators.hv.br.CPFValidator;

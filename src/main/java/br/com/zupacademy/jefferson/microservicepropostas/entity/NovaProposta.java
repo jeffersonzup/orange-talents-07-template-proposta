@@ -2,7 +2,7 @@ package br.com.zupacademy.jefferson.microservicepropostas.entity;
 
 import br.com.zupacademy.jefferson.microservicepropostas.enums.ResultadoSolicitacao;
 import br.com.zupacademy.jefferson.microservicepropostas.enums.StatusProposta;
-import br.com.zupacademy.jefferson.microservicepropostas.validation.CpfOuCnpj;
+import br.com.zupacademy.jefferson.microservicepropostas.config.validation.CpfOuCnpj;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;

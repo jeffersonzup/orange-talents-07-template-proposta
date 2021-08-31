@@ -1,4 +1,4 @@
-package br.com.zupacademy.jefferson.microservicepropostas.validation;
+package br.com.zupacademy.jefferson.microservicepropostas.config.validation;
 
 
 import javax.validation.Constraint;

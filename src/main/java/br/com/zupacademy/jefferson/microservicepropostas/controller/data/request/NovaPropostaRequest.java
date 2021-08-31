@@ -1,7 +1,7 @@
 package br.com.zupacademy.jefferson.microservicepropostas.controller.data.request;
 
 import br.com.zupacademy.jefferson.microservicepropostas.entity.NovaProposta;
-import br.com.zupacademy.jefferson.microservicepropostas.validation.CpfOuCnpj;
+import br.com.zupacademy.jefferson.microservicepropostas.config.validation.CpfOuCnpj;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
