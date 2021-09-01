@@ -48,6 +48,10 @@ public class Cartao {
         return statusCartao;
     }
 
+    public void bloqueiaCartao() {
+        this.statusCartao = StatusCartao.BLOQUEADO;
+    }
+
     public Long getId() {
         return id;
     }
