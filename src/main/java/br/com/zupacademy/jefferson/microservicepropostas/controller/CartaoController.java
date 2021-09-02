@@ -1,12 +1,15 @@
 package br.com.zupacademy.jefferson.microservicepropostas.controller;
 
+import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.AvisoViagemRequest;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.BiometriaRequest;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.BloqueioApiRequest;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.BloqueioApiResponse;
+import br.com.zupacademy.jefferson.microservicepropostas.entity.AvisoViagem;
 import br.com.zupacademy.jefferson.microservicepropostas.entity.Biometria;
 import br.com.zupacademy.jefferson.microservicepropostas.entity.BloqueioCartao;
 import br.com.zupacademy.jefferson.microservicepropostas.entity.Cartao;
 import br.com.zupacademy.jefferson.microservicepropostas.enums.StatusCartao;
+import br.com.zupacademy.jefferson.microservicepropostas.repository.AvisoViagemRepository;
 import br.com.zupacademy.jefferson.microservicepropostas.repository.BiometriaRepository;
 import br.com.zupacademy.jefferson.microservicepropostas.repository.BloqueioCartaoRepository;
 import br.com.zupacademy.jefferson.microservicepropostas.repository.CartaoRepository;
@@ -31,12 +34,15 @@ public class CartaoController {
 
     private BloqueioCartaoRepository bloqueioCartaoRepository;
 
+    private AvisoViagemRepository avisoViagemRepository;
+
     private ApiCardClient apiCardClient;
 
-    public CartaoController(CartaoRepository cartaoRepository, BiometriaRepository biometriaRepository, BloqueioCartaoRepository bloqueioCartaoRepository, ApiCardClient apiCardClient) {
+    public CartaoController(CartaoRepository cartaoRepository, BiometriaRepository biometriaRepository, BloqueioCartaoRepository bloqueioCartaoRepository, AvisoViagemRepository avisoViagemRepository, ApiCardClient apiCardClient) {
         this.cartaoRepository = cartaoRepository;
         this.biometriaRepository = biometriaRepository;
         this.bloqueioCartaoRepository = bloqueioCartaoRepository;
+        this.avisoViagemRepository = avisoViagemRepository;
         this.apiCardClient = apiCardClient;
     }
 
@@ -94,5 +100,29 @@ public class CartaoController {
         cartaoRepository.save(cartao);
 
         return ResponseEntity.ok().body("Cartão Bloqueado!");
+    }
+
+    @PostMapping("/{numeroCartao}/avisos")
+    public ResponseEntity avisoViagem(@PathVariable String numeroCartao, @RequestBody @Valid AvisoViagemRequest avisoViagemRequest, HttpServletRequest request){
+        Optional<Cartao> existsCartao = cartaoRepository.findByNumeroCartao(numeroCartao);
+
+        if (existsCartao.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        String ipClient = request.getHeader("X-FORWARDED-FOR");
+        String userAgent = request.getHeader("User-Agent");
+
+        if(ipClient == null){
+            ipClient = request.getRemoteAddr();
+        }
+
+        Cartao cartao = existsCartao.get();
+
+        AvisoViagem avisoViagem = avisoViagemRequest.convertRequestToEntity(ipClient, userAgent, cartao);
+
+        AvisoViagem avisoViagemSalva = avisoViagemRepository.save(avisoViagem);
+
+        return ResponseEntity.ok().body("Cartão foi notificado da Viagem!");
     }
 }
