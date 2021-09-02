@@ -1,6 +1,8 @@
 package br.com.zupacademy.jefferson.microservicepropostas.controller;
 
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.BiometriaRequest;
+import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.BloqueioApiRequest;
+import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.BloqueioApiResponse;
 import br.com.zupacademy.jefferson.microservicepropostas.entity.Biometria;
 import br.com.zupacademy.jefferson.microservicepropostas.entity.BloqueioCartao;
 import br.com.zupacademy.jefferson.microservicepropostas.entity.Cartao;
@@ -8,6 +10,7 @@ import br.com.zupacademy.jefferson.microservicepropostas.enums.StatusCartao;
 import br.com.zupacademy.jefferson.microservicepropostas.repository.BiometriaRepository;
 import br.com.zupacademy.jefferson.microservicepropostas.repository.BloqueioCartaoRepository;
 import br.com.zupacademy.jefferson.microservicepropostas.repository.CartaoRepository;
+import feign.FeignException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -28,10 +31,13 @@ public class CartaoController {
 
     private BloqueioCartaoRepository bloqueioCartaoRepository;
 
-    public CartaoController(CartaoRepository cartaoRepository, BiometriaRepository biometriaRepository, BloqueioCartaoRepository bloqueioCartaoRepository) {
+    private ApiCardClient apiCardClient;
+
+    public CartaoController(CartaoRepository cartaoRepository, BiometriaRepository biometriaRepository, BloqueioCartaoRepository bloqueioCartaoRepository, ApiCardClient apiCardClient) {
         this.cartaoRepository = cartaoRepository;
         this.biometriaRepository = biometriaRepository;
         this.bloqueioCartaoRepository = bloqueioCartaoRepository;
+        this.apiCardClient = apiCardClient;
     }
 
     @PostMapping("/{numeroCartao}/biometria")
@@ -52,8 +58,8 @@ public class CartaoController {
         return ResponseEntity.created(uri).build();
     }
 
-    @PostMapping("/{numeroCartao}/bloqueio")
-    public ResponseEntity<?> bloquearCartao(@PathVariable String numeroCartao, HttpServletRequest request){
+    @PostMapping("/{numeroCartao}/bloqueios")
+    public ResponseEntity bloquearCartao(@PathVariable String numeroCartao, HttpServletRequest request){
         Optional<Cartao> existsCartao = cartaoRepository.findByNumeroCartao(numeroCartao);
 
         String userAgent =  request.getHeader("User-Agent");
@@ -68,13 +74,22 @@ public class CartaoController {
         }
 
         Cartao cartao = existsCartao.get();
+
         if(cartao.getStatusCartao() == StatusCartao.BLOQUEADO){
             return ResponseEntity.unprocessableEntity().build();
         }
 
         BloqueioCartao solicitacaoBloqueio = new BloqueioCartao(ipClient, userAgent, cartao);
 
-        BloqueioCartao cartaoBloqueado = bloqueioCartaoRepository.save(solicitacaoBloqueio);
+        try{
+            BloqueioApiRequest bloqueioApiRequest = new BloqueioApiRequest("Proposta");
+            BloqueioApiResponse bloqueioApiResponse = apiCardClient.blockCard(numeroCartao, bloqueioApiRequest);
+            System.out.println(bloqueioApiResponse.getResultado());
+        }catch (FeignException e){
+            return ResponseEntity.internalServerError().body("Falha de comunicação com sistema externo.");
+        }
+
+        bloqueioCartaoRepository.save(solicitacaoBloqueio);
         cartao.bloqueiaCartao();
         cartaoRepository.save(cartao);
 

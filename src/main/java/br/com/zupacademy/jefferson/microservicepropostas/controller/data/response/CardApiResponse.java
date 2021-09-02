@@ -12,7 +12,7 @@ public class CardApiResponse {
     private String id;
     private LocalDateTime emitidoEm;
     private String titular;
-    private List<?> bloqueios = new ArrayList<>();
+    private List<BloqueioCartaoApiResponse> bloqueios;
     private List<?> avisos = new ArrayList<>();
     private List<?> carteiras = new ArrayList<>();
     private List<?> parcelas = new ArrayList<>();
@@ -21,7 +21,7 @@ public class CardApiResponse {
     private Vencimento vencimento;
     private String idProposta;
 
-    public CardApiResponse(String id, LocalDateTime emitidoEm, String titular, List<?> bloqueios, List<?> avisos, List<?> carteiras, List<?> parcelas, BigDecimal limite, Renegociacao renegociacao, Vencimento vencimento, String idProposta) {
+    public CardApiResponse(String id, LocalDateTime emitidoEm, String titular, List<BloqueioCartaoApiResponse> bloqueios, List<?> avisos, List<?> carteiras, List<?> parcelas, BigDecimal limite, Renegociacao renegociacao, Vencimento vencimento, String idProposta) {
         this.id = id;
         this.emitidoEm = emitidoEm;
         this.titular = titular;
@@ -47,7 +47,7 @@ public class CardApiResponse {
         return titular;
     }
 
-    public List<?> getBloqueios() {
+    public List<BloqueioCartaoApiResponse> getBloqueios() {
         return bloqueios;
     }
 

@@ -29,6 +29,10 @@ public class BloqueioCartao {
     @ManyToOne
     private Cartao cartao;
 
+    @Deprecated
+    public BloqueioCartao() {
+    }
+
     public BloqueioCartao(String ipClient, String userAgent, Cartao cartao) {
         this.ipClient = ipClient;
         this.userAgent = userAgent;
