@@ -3,7 +3,9 @@ package br.com.zupacademy.jefferson.microservicepropostas.controller;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.AvisoViagemRequest;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.BiometriaRequest;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.BloqueioApiRequest;
+import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.SolicitacaoAvisoViagemRequest;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.BloqueioApiResponse;
+import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.ResultadoAvisoViagemResponse;
 import br.com.zupacademy.jefferson.microservicepropostas.entity.AvisoViagem;
 import br.com.zupacademy.jefferson.microservicepropostas.entity.Biometria;
 import br.com.zupacademy.jefferson.microservicepropostas.entity.BloqueioCartao;
@@ -118,6 +120,17 @@ public class CartaoController {
         }
 
         Cartao cartao = existsCartao.get();
+
+        try{
+            System.out.println("Entrou no try");
+            SolicitacaoAvisoViagemRequest solicitacaoAvisoViagemRequest = new SolicitacaoAvisoViagemRequest(avisoViagemRequest.getDestinoViagem(), avisoViagemRequest.getTerminoViagem());
+            System.out.println("Instanciou a classe Solicitacao Aviso Viagem");
+            ResultadoAvisoViagemResponse resultadoAvisoViagemResponse = apiCardClient.tripNotice(numeroCartao, solicitacaoAvisoViagemRequest);
+            System.out.println("Comunicou a API");
+            System.out.println(resultadoAvisoViagemResponse.getResultado());
+        }catch (FeignException e){
+            return ResponseEntity.internalServerError().body("Falha de comunicação com o sistema externo.");
+        }
 
         AvisoViagem avisoViagem = avisoViagemRequest.convertRequestToEntity(ipClient, userAgent, cartao);
 
