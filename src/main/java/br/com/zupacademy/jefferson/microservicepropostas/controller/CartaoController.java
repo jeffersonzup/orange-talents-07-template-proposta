@@ -1,20 +1,13 @@
 package br.com.zupacademy.jefferson.microservicepropostas.controller;
 
-import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.AvisoViagemRequest;
-import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.BiometriaRequest;
-import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.BloqueioApiRequest;
-import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.SolicitacaoAvisoViagemRequest;
+import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.*;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.BloqueioApiResponse;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.ResultadoAvisoViagemResponse;
-import br.com.zupacademy.jefferson.microservicepropostas.entity.AvisoViagem;
-import br.com.zupacademy.jefferson.microservicepropostas.entity.Biometria;
-import br.com.zupacademy.jefferson.microservicepropostas.entity.BloqueioCartao;
-import br.com.zupacademy.jefferson.microservicepropostas.entity.Cartao;
+import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.ResultadoCarteiraResponse;
+import br.com.zupacademy.jefferson.microservicepropostas.entity.*;
 import br.com.zupacademy.jefferson.microservicepropostas.enums.StatusCartao;
-import br.com.zupacademy.jefferson.microservicepropostas.repository.AvisoViagemRepository;
-import br.com.zupacademy.jefferson.microservicepropostas.repository.BiometriaRepository;
-import br.com.zupacademy.jefferson.microservicepropostas.repository.BloqueioCartaoRepository;
-import br.com.zupacademy.jefferson.microservicepropostas.repository.CartaoRepository;
+import br.com.zupacademy.jefferson.microservicepropostas.enums.StatusCarteira;
+import br.com.zupacademy.jefferson.microservicepropostas.repository.*;
 import feign.FeignException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -38,13 +32,16 @@ public class CartaoController {
 
     private AvisoViagemRepository avisoViagemRepository;
 
+    private CarteiraDigitalRepository carteiraDigitalRepository;
+
     private ApiCardClient apiCardClient;
 
-    public CartaoController(CartaoRepository cartaoRepository, BiometriaRepository biometriaRepository, BloqueioCartaoRepository bloqueioCartaoRepository, AvisoViagemRepository avisoViagemRepository, ApiCardClient apiCardClient) {
+    public CartaoController(CartaoRepository cartaoRepository, BiometriaRepository biometriaRepository, BloqueioCartaoRepository bloqueioCartaoRepository, AvisoViagemRepository avisoViagemRepository, CarteiraDigitalRepository carteiraDigitalRepository, ApiCardClient apiCardClient) {
         this.cartaoRepository = cartaoRepository;
         this.biometriaRepository = biometriaRepository;
         this.bloqueioCartaoRepository = bloqueioCartaoRepository;
         this.avisoViagemRepository = avisoViagemRepository;
+        this.carteiraDigitalRepository = carteiraDigitalRepository;
         this.apiCardClient = apiCardClient;
     }
 
@@ -129,7 +126,7 @@ public class CartaoController {
             System.out.println("Comunicou a API");
             System.out.println(resultadoAvisoViagemResponse.getResultado());
         }catch (FeignException e){
-            return ResponseEntity.internalServerError().body("Falha de comunicação com o sistema externo.");
+            return ResponseEntity.internalServerError().body("Não foi possível realizar comunicação com sistema externo.");
         }
 
         AvisoViagem avisoViagem = avisoViagemRequest.convertRequestToEntity(ipClient, userAgent, cartao);
@@ -137,5 +134,39 @@ public class CartaoController {
         AvisoViagem avisoViagemSalva = avisoViagemRepository.save(avisoViagem);
 
         return ResponseEntity.ok().body("Cartão foi notificado da Viagem!");
+    }
+
+    @PostMapping("/{numeroCartao}/carteiras")
+    public ResponseEntity associaCarteiraDigital(@PathVariable String numeroCartao, @RequestBody @Valid AssociaCarteiraDigitalRequest associaCarteiraDigitalRequest, UriComponentsBuilder builder){
+        Optional<Cartao> existsCartao = cartaoRepository.findByNumeroCartao(numeroCartao);
+        if (existsCartao.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        Cartao cartao = existsCartao.get();
+
+        List<CarteiraDigital> existsCarteiraAssociada = carteiraDigitalRepository.findByStatusCarteiraAndCartaoNumeroCartao(StatusCarteira.ATIVO, numeroCartao);
+
+        for(CarteiraDigital carteiraDigital: existsCarteiraAssociada){
+            if(carteiraDigital.getTipoCarteira() == associaCarteiraDigitalRequest.getTipoCarteira()){
+                return ResponseEntity.unprocessableEntity().body("Não foi possivel associar cartão a carteira digital "
+                        + associaCarteiraDigitalRequest.getTipoCarteira().toString());
+            }
+        }
+
+        CarteiraDigital carteiraDigital = associaCarteiraDigitalRequest.convertRequestToEntity(cartao);
+
+        try{
+            SolicitacaoInclusaoCarteiraRequest solicitacaoInclusaoCarteira = new SolicitacaoInclusaoCarteiraRequest(associaCarteiraDigitalRequest.getEmail(), associaCarteiraDigitalRequest.getTipoCarteira());
+            ResultadoCarteiraResponse resultadoCarteiraResponse = apiCardClient.associateDigitalWallet(numeroCartao, solicitacaoInclusaoCarteira);
+            System.out.println(resultadoCarteiraResponse.getResultado());
+        }catch (FeignException e){
+            return ResponseEntity.internalServerError().body("Não foi possível realizar comunicação com sistema externo.");
+        }
+
+        CarteiraDigital carteiraDigitalSalva = carteiraDigitalRepository.save(carteiraDigital);
+
+        URI uri = builder.path("/cartoes/{numeroCartao}/carteiras").buildAndExpand(carteiraDigitalSalva.getId()).toUri();
+        return ResponseEntity.created(uri).body("Carteira digital cadastrada com sucesso!");
     }
 }

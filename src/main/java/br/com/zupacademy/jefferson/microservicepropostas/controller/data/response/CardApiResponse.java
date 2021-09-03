@@ -14,14 +14,14 @@ public class CardApiResponse {
     private String titular;
     private List<BloqueioCartaoApiResponse> bloqueios;
     private List<AvisoViagemApiResponse> avisos;
-    private List<?> carteiras = new ArrayList<>();
+    private List<CarteiraDigitalApiResponse> carteiras;
     private List<?> parcelas = new ArrayList<>();
     private BigDecimal limite;
     private Renegociacao renegociacao;
     private Vencimento vencimento;
     private String idProposta;
 
-    public CardApiResponse(String id, LocalDateTime emitidoEm, String titular, List<BloqueioCartaoApiResponse> bloqueios, List<AvisoViagemApiResponse> avisos, List<?> carteiras, List<?> parcelas, BigDecimal limite, Renegociacao renegociacao, Vencimento vencimento, String idProposta) {
+    public CardApiResponse(String id, LocalDateTime emitidoEm, String titular, List<BloqueioCartaoApiResponse> bloqueios, List<AvisoViagemApiResponse> avisos, List<CarteiraDigitalApiResponse> carteiras, List<?> parcelas, BigDecimal limite, Renegociacao renegociacao, Vencimento vencimento, String idProposta) {
         this.id = id;
         this.emitidoEm = emitidoEm;
         this.titular = titular;
@@ -55,7 +55,7 @@ public class CardApiResponse {
         return avisos;
     }
 
-    public List<?> getCarteiras() {
+    public List<CarteiraDigitalApiResponse> getCarteiras() {
         return carteiras;
     }
 

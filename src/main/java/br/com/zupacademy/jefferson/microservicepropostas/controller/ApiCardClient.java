@@ -2,9 +2,11 @@ package br.com.zupacademy.jefferson.microservicepropostas.controller;
 
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.BloqueioApiRequest;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.SolicitacaoAvisoViagemRequest;
+import br.com.zupacademy.jefferson.microservicepropostas.controller.data.request.SolicitacaoInclusaoCarteiraRequest;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.BloqueioApiResponse;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.CardApiResponse;
 import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.ResultadoAvisoViagemResponse;
+import br.com.zupacademy.jefferson.microservicepropostas.controller.data.response.ResultadoCarteiraResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,4 +21,7 @@ public interface ApiCardClient {
 
     @PostMapping("${api-card.trip-notice}")
     ResultadoAvisoViagemResponse tripNotice(@PathVariable String id, SolicitacaoAvisoViagemRequest solicitacaoAvisoViagemRequest);
+
+    @PostMapping("${api-card.associate-digital-wallet}")
+    ResultadoCarteiraResponse associateDigitalWallet(@PathVariable String id, SolicitacaoInclusaoCarteiraRequest solicitacaoInclusaoCarteiraRequest);
 }
