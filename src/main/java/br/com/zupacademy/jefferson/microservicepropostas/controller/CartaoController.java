@@ -19,7 +19,6 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/cartoes")
@@ -92,7 +91,7 @@ public class CartaoController {
             BloqueioApiResponse bloqueioApiResponse = apiCardClient.blockCard(numeroCartao, bloqueioApiRequest);
             System.out.println(bloqueioApiResponse.getResultado());
         }catch (FeignException e){
-            return ResponseEntity.internalServerError().body("Falha de comunicação com sistema externo.");
+            return ResponseEntity.status(422).body("Falha de comunicação com sistema externo.");
         }
 
         bloqueioCartaoRepository.save(solicitacaoBloqueio);
@@ -127,7 +126,7 @@ public class CartaoController {
             System.out.println("Comunicou a API");
             System.out.println(resultadoAvisoViagemResponse.getResultado());
         }catch (FeignException e){
-            return ResponseEntity.internalServerError().body("Não foi possível realizar comunicação com sistema externo.");
+            return ResponseEntity.status(422).body("Não foi possível realizar comunicação com sistema externo.");
         }
 
         AvisoViagem avisoViagem = avisoViagemRequest.convertRequestToEntity(ipClient, userAgent, cartao);
@@ -163,7 +162,7 @@ public class CartaoController {
             ResultadoCarteiraResponse resultadoCarteiraResponse = apiCardClient.associateDigitalWallet(numeroCartao, solicitacaoInclusaoCarteira);
             System.out.println(resultadoCarteiraResponse.getResultado());
         }catch (FeignException e){
-            return ResponseEntity.internalServerError().body("Não foi possível realizar comunicação com sistema externo.");
+            return ResponseEntity.status(422).body("Não foi possível realizar comunicação com sistema externo.");
         }
 
         CarteiraDigital carteiraDigitalSalva = carteiraDigitalRepository.save(carteiraDigital);
