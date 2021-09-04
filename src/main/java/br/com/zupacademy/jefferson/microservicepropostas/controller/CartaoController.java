@@ -19,6 +19,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/cartoes")
@@ -147,11 +148,12 @@ public class CartaoController {
 
         List<CarteiraDigital> existsCarteiraAssociada = carteiraDigitalRepository.findByStatusCarteiraAndCartaoNumeroCartao(StatusCarteira.ATIVO, numeroCartao);
 
-        for(CarteiraDigital carteiraDigital: existsCarteiraAssociada){
-            if(carteiraDigital.getTipoCarteira() == associaCarteiraDigitalRequest.getTipoCarteira()){
-                return ResponseEntity.unprocessableEntity().body("Não foi possivel associar cartão a carteira digital "
-                        + associaCarteiraDigitalRequest.getTipoCarteira().toString());
-            }
+        boolean existsTipoCarteira = existsCarteiraAssociada.stream()
+                .anyMatch(c -> c.getTipoCarteira().equals(associaCarteiraDigitalRequest.getTipoCarteira()));
+
+        if (existsTipoCarteira) {
+            return ResponseEntity.unprocessableEntity().body("Não foi possivel associar cartão a carteira digital "
+                    + associaCarteiraDigitalRequest.getTipoCarteira().toString());
         }
 
         CarteiraDigital carteiraDigital = associaCarteiraDigitalRequest.convertRequestToEntity(cartao);
