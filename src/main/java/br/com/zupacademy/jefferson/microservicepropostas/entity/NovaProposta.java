@@ -1,8 +1,8 @@
 package br.com.zupacademy.jefferson.microservicepropostas.entity;
 
+import br.com.zupacademy.jefferson.microservicepropostas.config.security.Cryptography;
 import br.com.zupacademy.jefferson.microservicepropostas.enums.ResultadoSolicitacao;
 import br.com.zupacademy.jefferson.microservicepropostas.enums.StatusProposta;
-import br.com.zupacademy.jefferson.microservicepropostas.config.validation.CpfOuCnpj;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -21,8 +21,7 @@ public class NovaProposta {
     private Long id;
 
     @NotBlank
-    @CpfOuCnpj
-    @Column(name = "documento_proposta", nullable = false)
+    @Column(name = "documento_proposta", nullable = false, unique = true)
     private String documento;
 
     @Email
@@ -55,7 +54,8 @@ public class NovaProposta {
     }
 
     public NovaProposta(String documento, String email, String nome, String endereco, BigDecimal salario) {
-        this.documento = documento;
+        this.documento = Cryptography.encrypt(documento);
+        this.documento = Cryptography.hash(documento);
         this.email = email;
         this.nome = nome;
         this.endereco = endereco;
